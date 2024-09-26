@@ -30,10 +30,10 @@ async function wallapop() {
   chromeOptions.setChromeBinaryPath('/usr/bin/google-chrome');
 
   chromeOptions.addArguments('user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36');
-  chromeOptions.addArguments('--disable-search-engine-choice-screen');
   chromeOptions.addArguments('--headless'); // Ejecutar en modo headless
-  chromeOptions.addArguments('--disable-gpu'); // Deshabilitar uso de GPU (opcional)
   chromeOptions.addArguments('--no-sandbox'); // Necesario en algunos entornos de servidor
+  chromeOptions.addArguments('--disable-search-engine-choice-screen');
+  chromeOptions.addArguments('--disable-gpu'); // Deshabilitar uso de GPU (opcional)
   chromeOptions.addArguments('--disable-dev-shm-usage'); // Evitar errores de almacenamiento compartido limitado
   chromeOptions.addArguments('--window-size=1920,1080');
 
