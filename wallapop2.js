@@ -6,7 +6,7 @@ const OpenAIService = require('./services/openai-service'); // Ajusta la ruta se
 
 // Función para asegurar que el directorio existe
 function ensureDirectoryExists(dir) {
-  if (!fs.existsSync(dir)){
+  if (!fs.existsSync(dir)) {
     fs.mkdirSync(dir, { recursive: true });
   }
 }
@@ -25,14 +25,17 @@ async function wallapop() {
 
   // Configuración de Chrome para headless
   const chromeOptions = new chrome.Options();
+
+  // Establecer la ruta al binario de Google Chrome
+  chromeOptions.setChromeBinaryPath('/usr/bin/google-chrome');
+
   chromeOptions.addArguments('user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36');
+  chromeOptions.addArguments('--disable-search-engine-choice-screen');
   chromeOptions.addArguments('--headless'); // Ejecutar en modo headless
-  chromeOptions.addArguments('--disable-gpu'); // Deshabilitar uso de GPU
+  chromeOptions.addArguments('--disable-gpu'); // Deshabilitar uso de GPU (opcional)
   chromeOptions.addArguments('--no-sandbox'); // Necesario en algunos entornos de servidor
   chromeOptions.addArguments('--disable-dev-shm-usage'); // Evitar errores de almacenamiento compartido limitado
-  chromeOptions.addArguments('--window-size=1920,1080'); // Establecer tamaño de ventana
-  chromeOptions.addArguments('--disable-infobars'); // Deshabilitar barras de información
-  chromeOptions.addArguments('--disable-extensions'); // Deshabilitar extensiones
+  chromeOptions.addArguments('--window-size=1920,1080');
 
   // Crear el driver de Chrome con las opciones configuradas
   const driver = await new Builder().forBrowser('chrome').setChromeOptions(chromeOptions).build();
@@ -46,7 +49,7 @@ async function wallapop() {
     const acceptButton = await driver.findElement(By.id('onetrust-accept-btn-handler'));
     await acceptButton.click();
     console.log('Cookies aceptadas');
-    
+
     await driver.sleep(1500); // Retardo
 
     for (let i = 0; i < 3; i++) {
