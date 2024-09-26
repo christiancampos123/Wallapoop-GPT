@@ -27,7 +27,7 @@ async function wallapop() {
   const chromeOptions = new chrome.Options();
 
   // Establecer la ruta al binario de Google Chrome
-  chromeOptions.setChromeBinaryPath('/usr/bin/google-chrome');
+  chromeOptions.setChromeBinaryPath('/usr/bin/chromium-browser');
 
   chromeOptions.addArguments('user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36');
   chromeOptions.addArguments('--headless'); // Ejecutar en modo headless
