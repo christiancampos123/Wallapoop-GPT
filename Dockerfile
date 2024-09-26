@@ -5,6 +5,13 @@ RUN apt update \
         chromium-driver \
     && rm -rf /var/lib/apt/lists/*
 
+RUN if [ "$(dpkg --print-architecture)" = "arm64" ]; then \
+        apt update \
+        && apt install -y --no-install-recommends \
+            binfmt-support qemu-user-static \
+        && rm -rf /var/lib/apt/lists/*; \
+    fi
+
 RUN mkdir -p /app && chown node:node /app
 WORKDIR /app
 
