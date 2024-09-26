@@ -4,41 +4,38 @@ const chrome = require('selenium-webdriver/chrome');
 const path = require('path');
 const OpenAIService = require('./services/openai-service'); // Ajusta la ruta según sea necesario
 
+// Función para asegurar que el directorio existe
+function ensureDirectoryExists(dir) {
+  if (!fs.existsSync(dir)) {
+    fs.mkdirSync(dir, { recursive: true });
+  }
+}
+
 // Función principal para extraer datos de Wallapop
 async function wallapop() {
-  const urlsToScrap=[
+  const urlsToScrap = [
     "https://es.wallapop.com/app/search?category_ids=24200&object_type_ids=10088&keywords=game%20boy&latitude=39.57825&longitude=2.63204&filters_source=default_filters",
     "https://es.wallapop.com/app/search?category_ids=24200&object_type_ids=10088&keywords=play%20station%203&latitude=39.57825&longitude=2.63204&filters_source=default_filters",
     "https://es.wallapop.com/app/search?category_ids=24200&object_type_ids=10088&keywords=nintendo%20ds&latitude=39.57825&longitude=2.63204&filters_source=default_filters",
     "https://es.wallapop.com/app/search?category_ids=24200&object_type_ids=10088&keywords=ds&latitude=39.57825&longitude=2.63204&filters_source=default_filters",
     "https://es.wallapop.com/app/search?category_ids=24200&object_type_ids=10088&keywords=play%20station%204&latitude=39.57825&longitude=2.63204&filters_source=default_filters"
-    // "https://es.wallapop.com/app/search?category_ids=24200&object_type_ids=10088&keywords=&latitude=39.57825&longitude=2.63204&filters_source=default_filters",
-    // "https://es.wallapop.com/app/search?category_ids=24200&object_type_ids=10088&keywords=gameboy&latitude=39.57825&longitude=2.63204&filters_source=default_filters",
-  ]
+  ];
 
   const cantidadUrls = 10; // Ajusta la cantidad de URLs que deseas extraer
 
   // Configuración de Chrome para headless
   const chromeOptions = new chrome.Options();
+
+  // Establecer la ruta al binario de Google Chrome
+  chromeOptions.setChromeBinaryPath('/usr/bin/google-chrome');
+
   chromeOptions.addArguments('user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36');
   chromeOptions.addArguments('--disable-search-engine-choice-screen');
   chromeOptions.addArguments('--headless'); // Ejecutar en modo headless
   chromeOptions.addArguments('--disable-gpu'); // Deshabilitar uso de GPU (opcional)
   chromeOptions.addArguments('--no-sandbox'); // Necesario en algunos entornos de servidor
   chromeOptions.addArguments('--disable-dev-shm-usage'); // Evitar errores de almacenamiento compartido limitado
-  chromeOptions.addArguments('--window-size=1920,1080'); // Establecer tamaño de ventana para cargar elementos correctamente
-
-  // Desactivar la carga de imágenes para ahorrar ancho de banda
-  chromeOptions.setUserPreferences({
-    profile: {
-      default_content_settings: {
-        images: 2
-      },
-      managed_default_content_settings: {
-        images: 2
-      }
-    }
-  });
+  chromeOptions.addArguments('--window-size=1920,1080');
 
   // Crear el driver de Chrome con las opciones configuradas
   const driver = await new Builder().forBrowser('chrome').setChromeOptions(chromeOptions).build();
@@ -53,7 +50,7 @@ async function wallapop() {
     await acceptButton.click();
     console.log('Cookies aceptadas');
 
-    await driver.sleep(1500);
+    await driver.sleep(1500); // Retardo
 
     for (let i = 0; i < 3; i++) {
       await driver.actions().move({ x: 100, y: 100 }).click().perform();
@@ -74,7 +71,7 @@ async function wallapop() {
     }
 
     // Recolectar URLs de anuncios
-    while (adData.length < 100) {
+    while (adData.length < cantidadUrls) {
       await driver.wait(until.elementsLocated(By.css('.ItemCardList__item')), 10000);
       const adElements = await driver.findElements(By.css('.ItemCardList__item'));
 
@@ -98,7 +95,7 @@ async function wallapop() {
 
       await driver.executeScript('window.scrollTo(0, document.body.scrollHeight);');
       console.log('Desplazándose hacia abajo para cargar más anuncios');
-      await driver.sleep(3000);
+      await driver.sleep(3000); // Retardo
     }
 
     // Extrae detalles de los anuncios
@@ -114,9 +111,10 @@ async function wallapop() {
 async function extractDetailsFromUrls(driver, urls) {
   const allDetails = [];
 
+  ensureDirectoryExists('storage'); // Asegúrate de que el directorio exista
+
   for (const url of urls) {
     await driver.get(url);
-
     let price = null;
     let title = null;
     let state = null;
@@ -165,24 +163,9 @@ async function extractDetailsFromUrls(driver, urls) {
       console.error('Error al guardar los detalles en el archivo JSON:', err);
     } else {
       console.log('Detalles guardados en wallapop.json');
-
-      // Llama al servicio OpenAI después de guardar el JSON
-      //await callOpenAIService(jsonFilePath);
+      // Llama al servicio OpenAI si es necesario
     }
   });
-}
-
-// Función para llamar al servicio OpenAI
-async function callOpenAIService(jsonFilePath) {
-  const openAIService = new OpenAIService(); // Crear instancia del servicio OpenAI
-  const filePath = path.resolve('./storage/wallapop.json'); // Ajusta la ruta según sea necesario
-
-  try {
-    // Llamar al nuevo método para subir y adjuntar el archivo
-    await openAIService.uploadAndAttach(filePath);
-  } catch (error) {
-    console.error('Error en el proceso general:', error);
-  }
 }
 
 // Iniciar la función principal
