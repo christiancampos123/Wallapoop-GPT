@@ -36,6 +36,16 @@ async function wallapop() {
   chromeOptions.addArguments('--disable-gpu'); // Deshabilitar uso de GPU (opcional)
   chromeOptions.addArguments('--disable-dev-shm-usage'); // Evitar errores de almacenamiento compartido limitado
   chromeOptions.addArguments('--window-size=1920,1080');
+  chromeOptions.setUserPreferences({
+    profile: {
+      default_content_settings: {
+        images: 2
+      },
+      managed_default_content_settings: {
+        images: 2
+      }
+    }
+  });
 
   // Crear el driver de Chrome con las opciones configuradas
   const driver = await new Builder().forBrowser('chrome').setChromeOptions(chromeOptions).build();
