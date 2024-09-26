@@ -1,0 +1,9 @@
+services:
+  wallapoop-gpt:
+    image: christiancampos123/wallapoop-gpt
+    build:
+      context: .
+    restart: no
+    volumes:
+      - ./claves.txt:/app/claves.txt:ro # Secret key file
+      - ./storage:/app/storage # JSON results folder
