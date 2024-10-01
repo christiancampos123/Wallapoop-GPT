@@ -3,6 +3,7 @@ const fs = require('fs');
 const chrome = require('selenium-webdriver/chrome');
 const path = require('path');
 const OpenAIService = require('./services/openai-service'); // Ajusta la ruta según sea necesario
+const TelegramService = require('node-telegram-bot-api');
 
 // Función para asegurar que el directorio existe
 function ensureDirectoryExists(dir) {
@@ -21,7 +22,7 @@ async function wallapop() {
     "https://es.wallapop.com/app/search?category_ids=24200&object_type_ids=10088&keywords=play%20station%204&latitude=39.57825&longitude=2.63204&filters_source=default_filters"
   ];
 
-  const cantidadUrls = 10; // Ajusta la cantidad de URLs que deseas extraer por cada categoría
+  const cantidadUrls = 1; // Ajusta la cantidad de URLs que deseas extraer por cada categoría
   const allAdUrls = []; // Array para almacenar todas las URLs de anuncios de todas las categorías
 
   // Configuración de Chrome
@@ -136,30 +137,49 @@ async function extractDetailsFromUrls(driver, urls) {
 
   // Guardar detalles en un archivo JSON
   const jsonFilePath = path.resolve('storage/wallapop.json'); // Ruta al archivo JSON guardado
+  const telegramService = new TelegramService();
+
   fs.writeFile(jsonFilePath, JSON.stringify(allDetails, null, 2), async (err) => {
     if (err) {
       console.error('Error al guardar los detalles en el archivo JSON:', err);
     } else {
       console.log('Detalles guardados en wallapop.json');
-      await callOpenAIService(jsonFilePath);
+      const responseGPT = await callOpenAIService();
+      // console.log("Mi respuesta ", responseGPT)
+      const messageToSend = responseGPT[0]?.text?.value || "No hay mensaje disponible"; // Asegurarse de que no sea vacío
+
+      if (messageToSend) {
+        await wallapopBotNotification(messageToSend);
+      } else {
+        console.error('El mensaje está vacío. No se enviará a Telegram.');
+      }
     }
   });
 }
 
 // Función para llamar al servicio OpenAI
-async function callOpenAIService(jsonFilePath) {
+async function callOpenAIService() {
   const openAIService = new OpenAIService(); // Crear instancia del servicio OpenAI
   const filePath = path.resolve('./storage/wallapop.json'); // Ajusta la ruta según sea necesario
 
   try {
-    // Llamar al nuevo método para subir y adjuntar el archivo
-    await openAIService.uploadAndAttach(filePath);
+    // Llamar al método para subir, adjuntar y consultar
+    const respuestaGPT = await openAIService.uploadAttachAndQueryWithPrompt(filePath);
+    return respuestaGPT; // Retornar la respuesta si es necesario
   } catch (error) {
-    console.error('Error en el proceso general:', error);
+    console.error('Error en el flujo general:', error);
   }
 }
 
 // Iniciar la función principal
-wallapop();
+//  wallapop();
+async function wallapopBotNotification(message) {
+  const TelegramService = require('./services/telegram-service'); // Ajusta la ruta según sea necesario
+  const telegramService = new TelegramService();
 
-// callOpenAIService(path.resolve('/storage/wallapop.json'))
+  await telegramService.sendMessage("351777687", message);
+}
+
+wallapop();
+// wallapopBotNotification("hola")
+// callOpenAIService()

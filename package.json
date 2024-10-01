@@ -9,6 +9,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "node-telegram-bot-api": "^0.66.0",
     "openai": "^4.63.0",
     "selenium-webdriver": "^4.25.0"
   }
