@@ -22,6 +22,7 @@ async function wallapop() {
   ];
 
   const cantidadUrls = 2; // Ajusta la cantidad de URLs que deseas extraer
+  const allAdUrls = []; // Array para almacenar todas las URLs de anuncios de todas las categorías
 
   // Configuración de Chrome para headless
   const chromeOptions = new chrome.Options();
