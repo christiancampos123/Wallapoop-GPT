@@ -120,7 +120,7 @@ class OpenAIService {
 
   // Método para manejar el flujo de subida, adjunto y consulta con prompt predefinido
   async uploadAttachAndQueryWithPrompt(filePath) {
-    const fixedPrompt = "Dame los 5 mejores anuncios de cada consola. Teniendo en cuenta que tienes las siguientes consolas: playstation 3, playstation 4, gameboys y ds o nintendo ds";
+    const fixedPrompt = "Dame los 5 mejores anuncios de cada consola (Tiene que haber 5 anuncios por cada consola. En el JSON tienes 20 anuncios por consola). Teniendo en cuenta que tienes las siguientes consolas: playstation 3, playstation 4, gameboys y ds o nintendo ds";
 
     try {
       // Eliminar todos los archivos del vector store antes de subir un nuevo archivo

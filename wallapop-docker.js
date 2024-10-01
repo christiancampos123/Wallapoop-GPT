@@ -23,7 +23,7 @@ async function wallapop() {
     "https://es.wallapop.com/app/search?category_ids=24200&object_type_ids=10088&keywords=play%20station%204&latitude=39.57825&longitude=2.63204&filters_source=default_filters"
   ];
 
-  const cantidadUrls = 2; // Ajusta la cantidad de URLs que deseas extraer
+  const cantidadUrls = 20; // Ajusta la cantidad de URLs que deseas extraer
   const allAdUrls = []; // Array para almacenar todas las URLs de anuncios de todas las categorías
 
   // Configuración de Chrome para headless
