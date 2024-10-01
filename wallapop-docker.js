@@ -26,7 +26,7 @@ async function wallapop() {
   // Configuración de Chrome para headless
   const chromeOptions = new chrome.Options();
 
-  // Establecer la ruta al binario de Google Chrome
+  // Establecer la ruta al binario de Google Chrome si es necesario
   chromeOptions.setChromeBinaryPath('/usr/bin/chromium');
 
   chromeOptions.addArguments('user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36');
@@ -51,65 +51,72 @@ async function wallapop() {
   const driver = await new Builder().forBrowser('chrome').setChromeOptions(chromeOptions).build();
 
   try {
-    const url = 'https://es.wallapop.com/app/search?latitude=39.5782344&longitude=2.6319001&keywords=gameboy&order_by=newest&country_code=ES&filters_source=quick_filters';
-    await driver.get(url);
-    await driver.executeScript("document.body.style.zoom='25%'");
+    // Recorre cada URL de la lista para realizar el scraping
+    for (const url of urlsToScrap) {
+      await driver.get(url);
+      await driver.executeScript("document.body.style.zoom='25%'");
 
-    await driver.wait(until.elementLocated(By.id('onetrust-accept-btn-handler')), 10000);
-    const acceptButton = await driver.findElement(By.id('onetrust-accept-btn-handler'));
-    await acceptButton.click();
-    console.log('Cookies aceptadas');
+      // Espera y acepta el banner de cookies si está presente
+      try {
+        await driver.wait(until.elementLocated(By.id('onetrust-accept-btn-handler')), 10000);
+        const acceptButton = await driver.findElement(By.id('onetrust-accept-btn-handler'));
+        await acceptButton.click();
+        console.log('Cookies aceptadas');
+      } catch (err) {
+        console.log('No se encontró el banner de cookies, continuando...');
+      }
 
-    await driver.sleep(1500); // Retardo
+      await driver.sleep(1500); // Retardo para esperar a que se cargue la página
 
-    for (let i = 0; i < 3; i++) {
-      await driver.actions().move({ x: 100, y: 100 }).click().perform();
-      await driver.sleep(500);
-    }
+      for (let i = 0; i < 3; i++) {
+        await driver.actions().move({ x: 100, y: 100 }).click().perform();
+        await driver.sleep(500);
+      }
 
-    const adData = [];
-    const adUrls = [];
+      const adData = [];
+      const adUrls = [];
 
-    try {
-      await driver.executeScript('arguments[0].scrollIntoView(true);', await driver.wait(until.elementLocated(By.css('#btn-load-more.hydrated')), 10000));
-      const loadMoreButton = await driver.findElement(By.css('#btn-load-more.hydrated'));
-      await loadMoreButton.click();
-      console.log('Clic en "Ver más productos"');
-      await driver.sleep(3000);
-    } catch (err) {
-      console.log('No se encontró el botón "Ver más productos".', err);
-    }
+      try {
+        await driver.executeScript('arguments[0].scrollIntoView(true);', await driver.wait(until.elementLocated(By.css('#btn-load-more.hydrated')), 10000));
+        const loadMoreButton = await driver.findElement(By.css('#btn-load-more.hydrated'));
+        await loadMoreButton.click();
+        console.log('Clic en "Ver más productos"');
+        await driver.sleep(3000);
+      } catch (err) {
+        console.log('No se encontró el botón "Ver más productos".', err);
+      }
 
-    // Recolectar URLs de anuncios
-    while (adData.length < cantidadUrls) {
-      await driver.wait(until.elementsLocated(By.css('.ItemCardList__item')), 10000);
-      const adElements = await driver.findElements(By.css('.ItemCardList__item'));
+      // Recolectar URLs de anuncios
+      while (adData.length < cantidadUrls) {
+        await driver.wait(until.elementsLocated(By.css('.ItemCardList__item')), 10000);
+        const adElements = await driver.findElements(By.css('.ItemCardList__item'));
 
-      for (const adElement of adElements) {
-        const title = await adElement.getAttribute('title');
-        const url = await adElement.getAttribute('href');
+        for (const adElement of adElements) {
+          const title = await adElement.getAttribute('title');
+          const url = await adElement.getAttribute('href');
 
-        if (!adUrls.includes(url)) {
-          adData.push({ title, url });
-          adUrls.push(url);
+          if (!adUrls.includes(url)) {
+            adData.push({ title, url });
+            adUrls.push(url);
 
-          if (adUrls.length >= cantidadUrls) {
-            break;
+            if (adUrls.length >= cantidadUrls) {
+              break;
+            }
           }
         }
+
+        if (adUrls.length >= cantidadUrls) {
+          break;
+        }
+
+        await driver.executeScript('window.scrollTo(0, document.body.scrollHeight);');
+        console.log('Desplazándose hacia abajo para cargar más anuncios');
+        await driver.sleep(3000); // Retardo
       }
 
-      if (adUrls.length >= cantidadUrls) {
-        break;
-      }
-
-      await driver.executeScript('window.scrollTo(0, document.body.scrollHeight);');
-      console.log('Desplazándose hacia abajo para cargar más anuncios');
-      await driver.sleep(3000); // Retardo
+      // Extraer detalles de los anuncios para cada URL encontrada
+      await extractDetailsFromUrls(driver, adUrls);
     }
-
-    // Extrae detalles de los anuncios
-    await extractDetailsFromUrls(driver, adUrls);
   } catch (error) {
     console.error('Error al obtener los anuncios:', error);
   } finally {
