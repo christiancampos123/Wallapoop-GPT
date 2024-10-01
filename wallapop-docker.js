@@ -3,6 +3,8 @@ const fs = require('fs');
 const chrome = require('selenium-webdriver/chrome');
 const path = require('path');
 const OpenAIService = require('./services/openai-service'); // Ajusta la ruta según sea necesario
+const TelegramService = require('node-telegram-bot-api');
+
 
 // Función para asegurar que el directorio existe
 function ensureDirectoryExists(dir) {
