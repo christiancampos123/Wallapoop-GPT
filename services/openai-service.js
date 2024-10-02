@@ -3,21 +3,21 @@ const fs = require('fs');
 const OpenAI = require('openai');
 const path = require('path');
 
+
 // Leer la clave API desde claves.txt
-const apiKeyPath = path.resolve('./claves.txt');
-const apiKey = fs.readFileSync(apiKeyPath, 'utf8').trim();
+const apiKey = process.env.apiKeyOAI
 
 // Crear una instancia del cliente de OpenAI
 const openai = new OpenAI({
-  project: "proj_llBKZUJTCGq2fksa6zO9gbzv", // Reemplaza con tu Project ID
+  project: process.env.projectAI, // Reemplaza con tu Project ID
   apiKey,
 });
 
 // Servicio para manejar la API de OpenAI
 class OpenAIService {
   constructor() {
-    this.vectorStoreId = "vs_z0qc6qLGMtonBppWK3smsAnd"; // Reemplaza con tu ID de Vector Store
-    this.assistantId = "asst_EBs8chduMiGQzNAisqzjGYEz";
+    this.vectorStoreId = process.env.vectorId; // Reemplaza con tu ID de Vector Store
+    this.assistantId = process.env.assistantId;
   }
 
   // Método para eliminar todos los archivos en el vector store

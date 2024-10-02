@@ -195,7 +195,7 @@ async function wallapopBotNotification(message) {
   messages = message.split("---\n")
 
   messages.forEach(e => {
-   telegramService.sendMessage("351777687", e);
+   telegramService.sendMessage(process.env.chatId, e);
   });
 }
 

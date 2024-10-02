@@ -3,7 +3,7 @@ const TelegramBot = require('node-telegram-bot-api');
 class TelegramService {
   constructor() {
     // Reemplaza el valor con el token de Telegram que recibes de @BotFather
-    this.token = '7904225546:AAFvKA1kTMcMmRzPwNwu_ey-_8023zjWyE0';
+    this.token = process.env.telegramToken;
     this.bot = new TelegramBot(this.token, { polling: false }); // Cambia a false para evitar conflictos
   }
 

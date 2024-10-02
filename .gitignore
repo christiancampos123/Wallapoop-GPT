@@ -1,3 +1,4 @@
 claves.txt
 node_modules
 storage/wallapop.json
+.env
