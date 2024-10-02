@@ -188,12 +188,15 @@ async function callOpenAIService() {
 }
 
 // Iniciar la función principal
-//  wallapop();
 async function wallapopBotNotification(message) {
   const TelegramService = require('./services/telegram-service'); // Ajusta la ruta según sea necesario
   const telegramService = new TelegramService();
 
-  await telegramService.sendMessage("351777687", message);
+  messages = message.split("---\n")
+
+  messages.forEach(e => {
+   telegramService.sendMessage("351777687", e);
+  });
 }
 
 wallapop();
