@@ -177,7 +177,7 @@ async function wallapopBotNotification(message) {
   const TelegramService = require('./services/telegram-service'); // Ajusta la ruta según sea necesario
   const telegramService = new TelegramService();
 
-  await telegramService.sendMessage("351777687", message);
+  await telegramService.sendMessage(process.env.chatId, message);
 }
 
 wallapop();
