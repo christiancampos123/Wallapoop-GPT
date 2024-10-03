@@ -189,7 +189,7 @@ async function callOpenAIService() {
 
 // Iniciar la función principal
 async function wallapopBotNotification(message) {
-  const TelegramService = require('./services/telegramBot'); // Ajusta la ruta según sea necesario
+  const TelegramService = require('./services/telegram-service'); // Ajusta la ruta según sea necesario
   const telegramService = new TelegramService();
 
   // Divide el mensaje por títulos que inician con '##' o '###'
